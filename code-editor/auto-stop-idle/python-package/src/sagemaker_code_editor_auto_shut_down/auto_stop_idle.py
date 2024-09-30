@@ -71,10 +71,31 @@ if all(status == "idle" for status in activity_status):
     space_name = resource_metadata['SpaceName']
     app_name = resource_metadata['ResourceName']
     app_type = resource_metadata['AppType']
-    resource_arn = resource_metadata["ResourceArn"]
+    resource_arn = resource_metadata["ResourceArn"]  
 
     # Use boto3 api call to delete the app. 
     sm_client = boto3.client('sagemaker',region_name=aws_region)
+    sns_client = boto3.client('sns',region_name=aws_region)
+    response = sm_client.describe_app(
+        DomainId=domain_id,
+        AppType=app_type,
+        AppName=app_name,
+        SpaceName=space_name
+    )
+    start_time = response['CreationTime']
+    end_time = datetime.now()
+
+    message_body = {
+    "start_time": start_time.strftime(DATE_FORMAT),
+    "end_time": end_time.strftime(DATE_FORMAT),
+    "space_name" : space_name
+    }
+    sns_client.publish(
+        TopicArn='arn:aws:sns:us-east-1:992382630395:auto-stop-idle-topic',
+        Message= json.dumps(message_body),
+        Subject='SageMaker Code Editor app terminated due to being idle for given duration.'
+    )
+    
     response = sm_client.delete_app(
         DomainId=domain_id,
         AppType=app_type,
