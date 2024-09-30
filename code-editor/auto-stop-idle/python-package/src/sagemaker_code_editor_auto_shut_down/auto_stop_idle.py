@@ -95,7 +95,7 @@ if all(status == "idle" for status in activity_status):
         Message= json.dumps(message_body),
         Subject='SageMaker Code Editor app terminated due to being idle for given duration.'
     )
-    
+    log_message("The message is sended to SNS topic.")
     response = sm_client.delete_app(
         DomainId=domain_id,
         AppType=app_type,
