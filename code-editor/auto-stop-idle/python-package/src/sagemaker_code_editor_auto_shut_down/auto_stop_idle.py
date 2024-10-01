@@ -90,6 +90,7 @@ if all(status == "idle" for status in activity_status):
     "end_time": end_time.strftime(DATE_FORMAT),
     "space_name" : space_name
     }
+    
     sns_client.publish(
         TopicArn='arn:aws:sns:us-east-1:992382630395:auto-stop-idle-topic',
         Message= json.dumps(message_body),
